@@ -348,7 +348,12 @@ public class RegionCoprocessorHost
           cl = CoprocessorHost.class.getClassLoader();
         }
         Thread.currentThread().setContextClassLoader(cl);
-        cl.loadClass(attr.getClassName());
+        String[] includedClassPrefixes = null;
+        if (conf.get(HConstants.CP_HTD_ATTR_INCLUSION_KEY) != null){
+          String prefixes = attr.conf.get(HConstants.CP_HTD_ATTR_INCLUSION_KEY);
+          includedClassPrefixes = prefixes.split(";");
+        }
+        ((CoprocessorClassLoader)cl).loadClass(attr.getClassName(), includedClassPrefixes);
       } catch (ClassNotFoundException e) {
         throw new IOException("Class " + attr.getClassName() + " cannot be loaded", e);
       } finally {
